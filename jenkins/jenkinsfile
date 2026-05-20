@@ -108,12 +108,14 @@ pipeline {
                 }
             }
             post {
-                junit 'tests-e2e/test-results/results.xml'
-                publishHTML target: [
-                    reportDir: 'test2-e2e/playwright-report',
-                    reportFiles: 'index.html',
-                    reportName: 'Playwright E2E Test Report'
-                ]
+                always {
+                    junit 'tests-e2e/test-results/results.xml'
+                    publishHTML target: [
+                        reportDir: 'test2-e2e/playwright-report',
+                        reportFiles: 'index.html',
+                        reportName: 'Playwright E2E Test Report'
+                    ]
+                }
             }
         }
     }
