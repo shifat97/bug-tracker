@@ -131,7 +131,6 @@ pipeline {
             }    
             steps {
                 dir('tests-perf') {
-                    sh 'npx wait-port http://localhost:3000 -t 30000'
                     sh 'k6 run script.js'
                 }
             }
