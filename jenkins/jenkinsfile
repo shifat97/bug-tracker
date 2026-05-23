@@ -103,6 +103,8 @@ pipeline {
             }
             steps {
                 dir('test-e2e') {
+                    sh 'npx wait-port http://localhost:3000 -t 30000'
+
                     sh 'npm ci'
                     sh 'npx playwright test'
                 }
