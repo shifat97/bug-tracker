@@ -102,7 +102,7 @@ pipeline {
                 }
             }
             steps {
-                dir('test-e2e') {
+                dir('tests-e2e') {
                     sh 'npx wait-port http://localhost:3000 -t 30000'
 
                     sh 'npm ci'
@@ -130,15 +130,15 @@ pipeline {
                 }
             }    
             steps {
-                dir('test-perf') {
-                    h 'npx wait-port http://localhost:3000 -t 30000'
+                dir('tests-perf') {
+                    sh 'npx wait-port http://localhost:3000 -t 30000'
                     sh 'k6 run script.js'
                 }
             }
             post {
                 always {
                     publishHTML target: [
-                        reportDir: 'test-perf',
+                        reportDir: 'tests-perf',
                         reportFiles: 'perf-results.html',
                         reportName: 'K6 Performance Test Report'
                     ]
