@@ -31,7 +31,7 @@ jobs:
                   go test -v ./... 2>&1 | go-junit-report > report.xml
 
             - name: Publish Backend Test Result
-              uses: dorny/test-reporter/v1
+              uses: dorny/test-reporter@v1
               if: always()
               with:
                   name: Backend Unit Test Report
