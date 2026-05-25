@@ -17,7 +17,7 @@ func TestBugValidation(t *testing.T) {
 		{
 			name: "Valid bug",
 			bug: Bug{
-				Title:       "Test Bug 1",
+				Title:       "",
 				Description: "Test Description",
 				Priority:    "High",
 				Status:      "Open",
