@@ -39,7 +39,6 @@ jobs:
                   reporter: jest-junit
 
     unit-tests-frontend:
-        needs: unit-tests-backend
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
@@ -64,3 +63,75 @@ jobs:
                   name: Frontend Unit Test Report
                   path: bugtracker-frontend/test-results.xml
                   reporter: jest-junit
+
+    integration-tests:
+        needs: [unit-tests-backend, unit-tests-frontend]
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20'
+
+            - name: Launch Application
+              run: docker compose up --build -d
+
+            - name: Run API Tests
+              working-directory: ./tests-api
+              run: |
+                  npm ci
+                  npx wait-port localhost:8080
+                  npx playwright test
+
+            - name: Publish API Test Results
+              uses: dorny/test-reporter@v1
+              if: always()
+              with:
+                  name: API Test Report
+                  path: tests-api/test-results/results.xml
+                  reporter: jest-junit
+
+            - name: Run E2E Tests
+              working-directory: ./tests-e2e
+              run: |
+                  npm ci
+                  npx playwright install --with-deps chromium
+                  npx wait-port localhost:3000
+                  npx playwright test
+
+            - name: Publish E2E Test Results
+              uses: dorny/test-reporter@v1
+              if: always()
+              with:
+                  name: E2E Test Report
+                  path: tests-e2e/test-results/results.xml
+                  reporter: jest-junit
+
+            - name: Run Performance Tests
+              working-directory: ./tests-perf
+              run: |
+                  docker run --rm --network host -v $(pwd):/io -w /io grafana/k6 run script.js
+
+            - name: Upload Playwright Reports
+              uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: playwright-reports
+                  path: |
+                    tests-api/playwright-report/
+                    tests-e2e/playwright-report/
+                  retention-days: 30
+
+            - name: Upload Performance Report
+              uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: performance-report
+                  path: tests-perf/perf-results.html
+                  retention-days: 30
+
+            - name: Shutdown Application
+              if: always()
+              run: docker compose down
