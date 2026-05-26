@@ -201,8 +201,6 @@ pipeline {
             }
             steps {
                 dir('tests-e2e') {
-                    sh 'npx wait-port https://bugtracker-staging-shifatbinreza.fly.dev -t 30000'
-
                     sh 'npm ci'
                     sh 'npx playwright test'
                 }
