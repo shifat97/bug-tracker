@@ -148,7 +148,7 @@ pipeline {
         stage('Deploy Staging') {
             when {
                 expression {
-                    return env.GIT_BRANCH = 'origin/main'
+                    return env.GIT_BRANCH == 'origin/main'
                 }
             }
             environment {
@@ -186,7 +186,7 @@ pipeline {
         stage ('Post E2E Tests') {
             when {
                 expression {
-                    return env.GIT_BRANCH = 'origin/main'
+                    return env.GIT_BRANCH == 'origin/main'
                 }
             }
             agent {
@@ -201,7 +201,7 @@ pipeline {
             }
             steps {
                 dir('tests-e2e') {
-                    sh 'npx wait-port http://localhost:3000 -t 30000'
+                    sh 'npx wait-port https://bugtracker-staging-shifatbinreza.fly.dev -t 30000'
 
                     sh 'npm ci'
                     sh 'npx playwright test'
@@ -222,7 +222,7 @@ pipeline {
         stage ('Deploy Production') { 
             when {
                 expression {
-                    return env.GIT_BRANCH = 'origin/main'
+                    return env.GIT_BRANCH == 'origin/main'
                 }
             }
             environment {
