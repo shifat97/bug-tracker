@@ -197,7 +197,7 @@ pipeline {
                 }
             }
             environment {
-                PLAYWRIGHT_TEST_BASE_URL = 'https://bugtracker-shifatbinreza.fly.dev'
+                PLAYWRIGHT_TEST_BASE_URL = 'https://bugtracker-staging-shifatbinreza.fly.dev'
             }
             steps {
                 dir('tests-e2e') {
@@ -215,6 +215,43 @@ pipeline {
                         reportFiles: 'index.html',
                         reportName: 'Playwright Post Deployment Test Report'
                     ]
+                }
+            }
+        }
+
+        stage ('Deploy Production') { 
+            when {
+                expression {
+                    return env.GIT_BRANCH = 'origin/main'
+                }
+            }
+            environment {
+                FLY_API_TOKEN = credentials('FLY_API_TOKEN')
+                FLYCTL_INSTALL = "${env.WORKSPACE.replaceAll(' ', '')}/.fly"
+                PATH = "${FLYCTL_INSTALL}/bin:${PATH}"
+                HOME = "${WORKSPACE}"
+            }
+            stages {
+                stage('Install Flyclt') {
+                    steps {
+                        sh 'mkdir -p $FLYCTL_INSTALL'
+                        sh 'curl -L "https://fly.io/install.sh" | sh'
+                        sh 'flyctl version'
+                    }
+                }
+                stage ('Deploy Backend') {
+                    steps {
+                        dir('bugtracker-backend') {
+                            sh 'flyctl deploy -c fly.toml --remote-only'
+                        }
+                    }
+                }
+                stage ('Deploy Frontend') {
+                    steps {
+                        dir('bugtracker-frontend') {
+                            sh 'flyctl deploy -c fly.toml --remote-only'
+                        }
+                    }
                 }
             }
         }
