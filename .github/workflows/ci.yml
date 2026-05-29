@@ -196,7 +196,7 @@ jobs:
                       tests-e2e/playwright-report/
                   retention-days: 30
 
-    deploy-staging:
+    deploy-production:
         needs: [post-e2e-tests]
 
         runs-on: ubuntu-latest
